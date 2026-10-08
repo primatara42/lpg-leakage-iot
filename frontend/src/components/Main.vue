@@ -1,7 +1,7 @@
 <template>
-  <section class="px-2 py-5 text-xs text-[#4C4C4C]">
+  <section class="bg-[#F5F5F5] px-2 py-5 text-xs text-[#4C4C4C] font-medium">
     <div
-      class="flex items-center px-1 py-2 gap-2 rounded-xl border-2 border-[#00C68D] bg-[#E8F5BD]"
+      class="flex items-center px-1 py-2 mb-3 gap-2 rounded-xl border-2 border-[#00C68D] bg-[#E8F5BD]"
     >
       <div>
         <img
@@ -14,7 +14,7 @@
       <div>
         <h2 class="">Status Sistem</h2>
 
-        <h2 class="font-bold text-[#00C68D]">Aman</h2>
+        <h2 class="font-bold text-[#00C68D] text-base">Aman</h2>
 
         <h2>Tidak Ada Indikasi Bahaya</h2>
       </div>
@@ -33,12 +33,14 @@
             alt="Ikon kadar gas LPG"
           />
 
-          <h2 class="font-medium leading-tight">Kadar Gas LPG</h2>
+          <h2>Kadar Gas LPG</h2>
         </div>
 
         <!-- Nilai dan progress bar -->
         <div class="flex flex-col gap-2">
-          <p class="font-bold">280 <span class="font-normal">PPM</span></p>
+          <p class="font-bold text-base">
+            280 <span class="font-normal text-xs">PPM</span>
+          </p>
 
           <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-300">
             <div class="h-full w-[38%] rounded-full bg-emerald-400"></div>
@@ -48,7 +50,7 @@
 
       <!-- Card Status Asap -->
       <div
-        class="flex min-w-0 flex-col justify-between gap-3 rounded-xl border-2 border-[#DDDDDD] bg-[#EEEEEE] p-3"
+        class="flex min-w-0 flex-col justify-center gap-3 rounded-xl border-2 border-[#DDDDDD] bg-[#EEEEEE] p-3"
       >
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
@@ -58,14 +60,14 @@
             alt="Ikon status asap"
           />
 
-          <h2 class="font-medium leading-tight">Status Asap</h2>
+          <h2>Status Asap</h2>
         </div>
 
         <!-- Status -->
         <div class="flex items-center gap-1">
           <img class="h-5 w-5 shrink-0" :src="smokeStatusIcon" alt="" />
 
-          <p class="font-bold leading-tight text-[#00C68D]">Tidak Ada Asap</p>
+          <p class="font-bold text-xs text-[#00C68D]">Tidak Ada Asap</p>
         </div>
       </div>
 
@@ -77,11 +79,13 @@
         <div class="flex min-w-0 items-center gap-2">
           <img class="h-6 w-6 shrink-0" :src="tempIcon" alt="Ikon suhu" />
 
-          <h2 class="font-medium leading-tight">Suhu</h2>
+          <h2>Suhu</h2>
         </div>
 
         <!-- Nilai suhu -->
-        <p class="font-bold">32 <span class="font-normal">°C</span></p>
+        <p class="font-bold text-base">
+          32 <span class="font-normal text-xs">°C</span>
+        </p>
       </div>
 
       <!-- Card Kelembapan -->
@@ -92,11 +96,13 @@
         <div class="flex min-w-0 items-center gap-2">
           <img class="h-6 w-6 shrink-0" :src="humidityIcon" alt="Ikon suhu" />
 
-          <h2 class="font-medium leading-tight">Kelembapan</h2>
+          <h2>Kelembapan</h2>
         </div>
 
         <!-- Nilai suhu -->
-        <p class="font-bold">29 <span class="font-normal">%</span></p>
+        <p class="font-bold text-base">
+          29 <span class="font-normal text-xs">%</span>
+        </p>
       </div>
     </div>
   </section>
