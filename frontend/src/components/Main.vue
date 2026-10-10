@@ -1,22 +1,35 @@
 <template>
   <section class="bg-[#F5F5F5] px-2 py-5 text-xs text-[#4C4C4C] font-medium">
     <div
-      class="flex items-center px-1 py-2 mb-3 gap-2 rounded-xl border-2 border-[#00C68D] bg-[#E8F5BD]"
+      class="flex items-center px-1 py-2 mb-3 gap-2 rounded-xl border-2"
+      :class="systemStatusStyle.card"
     >
       <div>
         <img
           class="w-17"
-          :src="safeStatusSystemIcon"
+          :src="
+            systemStatusStyle.icon === 'safe'
+              ? safeStatusSystemIcon
+              : warningStatusSystemIcon
+          "
           alt="System Status Icon"
         />
       </div>
 
       <div>
-        <h2 class="">Status Sistem</h2>
+        <h2>Status Sistem</h2>
 
-        <h2 class="font-bold text-[#00C68D] text-base">Aman</h2>
+        <h2 class="font-bold text-base" :class="systemStatusStyle.text">
+          {{ systemStatus }}
+        </h2>
 
-        <h2>Tidak Ada Indikasi Bahaya</h2>
+        <h2>
+          {{
+            systemStatusStyle.icon === "safe"
+              ? "Tidak Ada Indikasi Bahaya"
+              : "Indikasi Bahaya Terdeteksi"
+          }}
+        </h2>
       </div>
     </div>
     <!-- Container untuk ketiga card -->
@@ -39,18 +52,22 @@
         <!-- Nilai dan progress bar -->
         <div class="flex flex-col gap-2">
           <p class="font-bold text-base">
-            280 <span class="font-normal text-xs">PPM</span>
+            {{ sensorData.gasPpm }} <span class="font-normal text-xs">PPM</span>
           </p>
 
           <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-300">
-            <div class="h-full w-[38%] rounded-full bg-emerald-400"></div>
+            <div
+              class="h-full rounded-full transition-all duration-300"
+              :class="gasProgressColor"
+              :style="{ width: `${gasProgress}%` }"
+            ></div>
           </div>
         </div>
       </div>
 
       <!-- Card Status Asap -->
       <div
-        class="flex min-w-0 flex-col justify-center gap-3 rounded-xl border-2 border-[#DDDDDD] bg-[#EEEEEE] p-3"
+        class="flex min-w-0 flex-col justify-center gap-3 rounded-xl border-2 p-3 border-[#DDDDDD] bg-[#EEEEEE]"
       >
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
@@ -65,9 +82,19 @@
 
         <!-- Status -->
         <div class="flex items-center gap-1">
-          <img class="h-5 w-5 shrink-0" :src="smokeStatusIcon" alt="" />
+          <img
+            class="h-5 w-5 shrink-0"
+            :src="
+              smokeStatus.icon === 'warning'
+                ? warningSmokeStatusSystemIcon
+                : safeSmokeStatusSystemIcon
+            "
+            alt=""
+          />
 
-          <p class="font-bold text-xs text-[#00C68D]">Tidak Ada Asap</p>
+          <p class="font-bold text-xs" :class="smokeStatus.text_color">
+            {{ smokeStatus.text }}
+          </p>
         </div>
       </div>
 
@@ -84,7 +111,8 @@
 
         <!-- Nilai suhu -->
         <p class="font-bold text-base">
-          32 <span class="font-normal text-xs">°C</span>
+          {{ sensorData.temperature }}
+          <span class="font-normal text-xs">°C</span>
         </p>
       </div>
 
@@ -101,17 +129,97 @@
 
         <!-- Nilai suhu -->
         <p class="font-bold text-base">
-          29 <span class="font-normal text-xs">%</span>
+          {{ sensorData.humidity }} <span class="font-normal text-xs">%</span>
         </p>
       </div>
     </div>
   </section>
 </template>
 <script setup>
+import { ref, computed } from "vue";
 import safeStatusSystemIcon from "../assets/icons/safe-status-system-icon.svg";
+import warningStatusSystemIcon from "../assets/icons/warning-status-system-icon.svg";
 import lpgAmountIcon from "../assets/icons/lpg-amount-icon.svg";
 import smokeIcon from "../assets/icons/smoke-icon.svg";
-import smokeStatusIcon from "../assets/icons/smoke-status-system-icon.svg";
+import warningSmokeStatusSystemIcon from "../assets/icons/warning-smoke-status-system-icon.svg";
+import safeSmokeStatusSystemIcon from "../assets/icons/safe-smoke-status-system-icon.svg";
 import tempIcon from "../assets/icons/temp-icon.svg";
 import humidityIcon from "../assets/icons/humidity-icon.svg";
+const sensorData = ref({
+  gasPpm: 504,
+  smokeDetected: true,
+  temperature: 32,
+  humidity: 29,
+  online: true,
+});
+
+// Batas maksimum untuk skala visual progress bar
+const gasScaleMax = 1000;
+
+// Menghitung lebar progress bar dalam persen
+const gasProgress = computed(() => {
+  return Math.min(
+    Math.max((sensorData.value.gasPpm / gasScaleMax) * 100, 0),
+    100,
+  );
+});
+
+// Menentukan warna progress bar
+const gasProgressColor = computed(() => {
+  if (sensorData.value.gasPpm < 400) {
+    return "bg-[#00C68D]";
+  }
+
+  if (sensorData.value.gasPpm < 700) {
+    return "bg-orange-400";
+  }
+
+  return "bg-red-500";
+});
+
+// Mengatur teks card status system
+const systemStatus = computed(() => {
+  if (sensorData.value.gasPpm > 400 && !sensorData.value.smokeDetected) {
+    return "Terdapat Kebocoran Gas!";
+  } else if (sensorData.value.gasPpm < 400 && sensorData.value.smokeDetected) {
+    return "Asap Terdeteksi!";
+  } else if (sensorData.value.gasPpm > 400 && sensorData.value.smokeDetected) {
+    return "TERDAPAT KEBOCORAN GAS LPG DAN ASAP!";
+  }
+
+  return "Aman";
+});
+
+// Menentukan styling status sistem saat ini
+const systemStatusStyle = computed(() => {
+  const isDanger =
+    sensorData.value.gasPpm > 400 || sensorData.value.smokeDetected;
+
+  return isDanger
+    ? {
+        card: "border-[#E11A45] bg-[#FFB6C1]",
+        text: "text-[#E11A45]",
+        icon: "warning",
+      }
+    : {
+        card: "border-[#00C68D] bg-[#E8F5BD]",
+        text: "text-[#00C68D]",
+        icon: "safe",
+      };
+});
+
+// Mengatur teks dan style card asap
+const smokeStatus = computed(() => {
+  return sensorData.value.smokeDetected
+    ? {
+        text_color: "text-red-500",
+        icon: "warning",
+        text: "Asap Terdeteksi!",
+      }
+    : {
+        text_color: "text-[#00C68D]",
+        icon: "",
+        text: "Tidak Ada Asap",
+      };
+});
 </script>
