@@ -136,7 +136,8 @@
   </section>
 </template>
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+
 import safeStatusSystemIcon from "../assets/icons/safe-status-system-icon.svg";
 import warningStatusSystemIcon from "../assets/icons/warning-status-system-icon.svg";
 import lpgAmountIcon from "../assets/icons/lpg-amount-icon.svg";
@@ -145,19 +146,68 @@ import warningSmokeStatusSystemIcon from "../assets/icons/warning-smoke-status-s
 import safeSmokeStatusSystemIcon from "../assets/icons/safe-smoke-status-system-icon.svg";
 import tempIcon from "../assets/icons/temp-icon.svg";
 import humidityIcon from "../assets/icons/humidity-icon.svg";
+
+// Alamat endpoint Laravel API
+const API_URL = "http://127.0.0.1:8000/api/sensor-readings/latest";
+
+// State untuk menyimpan pembacaan sensor
 const sensorData = ref({
-  gasPpm: 504,
-  smokeDetected: true,
-  temperature: 32,
-  humidity: 29,
-  online: true,
+  gasPpm: null,
+  smokeDetected: false,
+  temperature: null,
+  humidity: null,
 });
 
-// Batas maksimum untuk skala visual progress bar
+// State untuk kondisi pengambilan data
+const hasData = ref(false);
+const isLoading = ref(true);
+const apiError = ref("");
+
+// Mengambil data terbaru dari Laravel
+const fetchSensorData = async () => {
+  try {
+    const response = await fetch(API_URL);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    // API berhasil diakses, tetapi belum ada pembacaan sensor
+    if (result.data === null) {
+      hasData.value = false;
+      apiError.value = "";
+      return;
+    }
+
+    // Memetakan nama field Laravel ke nama variabel Vue
+    sensorData.value = {
+      gasPpm: result.data.gas_ppm,
+      smokeDetected: result.data.smoke_detected,
+      temperature: result.data.temperature,
+      humidity: result.data.humidity,
+    };
+
+    hasData.value = true;
+    apiError.value = "";
+  } catch (error) {
+    apiError.value = error.message;
+    console.error("Gagal mengambil data sensor:", error);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+// Batas maksimum skala visual progress bar
 const gasScaleMax = 1000;
 
-// Menghitung lebar progress bar dalam persen
+// Menghitung lebar progress bar
 const gasProgress = computed(() => {
+  if (!hasData.value || sensorData.value.gasPpm == null) {
+    return 0;
+  }
+
   return Math.min(
     Math.max((sensorData.value.gasPpm / gasScaleMax) * 100, 0),
     100,
@@ -166,6 +216,10 @@ const gasProgress = computed(() => {
 
 // Menentukan warna progress bar
 const gasProgressColor = computed(() => {
+  if (!hasData.value || sensorData.value.gasPpm == null) {
+    return "bg-gray-400";
+  }
+
   if (sensorData.value.gasPpm < 400) {
     return "bg-[#00C68D]";
   }
@@ -177,8 +231,16 @@ const gasProgressColor = computed(() => {
   return "bg-red-500";
 });
 
-// Mengatur teks card status system
+// Menentukan teks status sistem
 const systemStatus = computed(() => {
+  if (!hasData.value) {
+    return isLoading.value ? "Memuat Data Sensor..." : "Menunggu Data Sensor";
+  }
+
+  if (sensorData.value.gasPpm == null) {
+    return "Data Gas Tidak Tersedia";
+  }
+
   if (sensorData.value.gasPpm > 400 && !sensorData.value.smokeDetected) {
     return "Terdapat Kebocoran Gas!";
   } else if (sensorData.value.gasPpm < 400 && sensorData.value.smokeDetected) {
@@ -190,8 +252,16 @@ const systemStatus = computed(() => {
   return "Aman";
 });
 
-// Menentukan styling status sistem saat ini
+// Menentukan styling status sistem
 const systemStatusStyle = computed(() => {
+  if (!hasData.value || sensorData.value.gasPpm == null) {
+    return {
+      card: "border-gray-300 bg-gray-100",
+      text: "text-gray-600",
+      icon: "safe",
+    };
+  }
+
   const isDanger =
     sensorData.value.gasPpm > 400 || sensorData.value.smokeDetected;
 
@@ -208,8 +278,16 @@ const systemStatusStyle = computed(() => {
       };
 });
 
-// Mengatur teks dan style card asap
+// Menentukan teks status asap
 const smokeStatus = computed(() => {
+  if (!hasData.value) {
+    return {
+      text_color: "text-gray-500",
+      icon: "",
+      text: "Menunggu Data Sensor",
+    };
+  }
+
   return sensorData.value.smokeDetected
     ? {
         text_color: "text-red-500",
@@ -221,5 +299,19 @@ const smokeStatus = computed(() => {
         icon: "",
         text: "Tidak Ada Asap",
       };
+});
+
+// Ambil data saat dashboard dibuka,
+// lalu perbarui setiap 5 detik.
+let pollingInterval;
+
+onMounted(() => {
+  fetchSensorData();
+  pollingInterval = setInterval(fetchSensorData, 5000);
+});
+
+// Hentikan polling ketika komponen dilepas
+onUnmounted(() => {
+  clearInterval(pollingInterval);
 });
 </script>
