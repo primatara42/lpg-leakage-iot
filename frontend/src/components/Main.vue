@@ -133,11 +133,12 @@
         </p>
       </div>
     </div>
+    <SensorHistoryChart class="mt-5" />
   </section>
 </template>
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from "vue";
-
+import SensorHistoryChart from "./SensorHistoryChart.vue";
 import safeStatusSystemIcon from "../assets/icons/safe-status-system-icon.svg";
 import warningStatusSystemIcon from "../assets/icons/warning-status-system-icon.svg";
 import lpgAmountIcon from "../assets/icons/lpg-amount-icon.svg";
@@ -307,7 +308,7 @@ let pollingInterval;
 
 onMounted(() => {
   fetchSensorData();
-  pollingInterval = setInterval(fetchSensorData, 5000);
+  pollingInterval = setInterval(fetchSensorData, 1000);
 });
 
 // Hentikan polling ketika komponen dilepas
