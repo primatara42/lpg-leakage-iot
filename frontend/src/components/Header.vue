@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-between py-3 px-5 bg-danger">
+  <div class="flex items-center justify-between py-3 px-5 bg-[#0F3040]">
     <div class="flex items-center gap-x-1">
       <div>
         <img
@@ -8,7 +8,7 @@
           class="text-primary-color w-10"
         />
       </div>
-      <h1 class="text-black font-semibold text-xs">
+      <h1 class="text-white font-semibold text-xs">
         Monitoring <br />
         Kebocoran Gas
       </h1>

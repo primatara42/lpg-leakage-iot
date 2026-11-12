@@ -4,6 +4,5 @@ import Main from "./components/Main.vue";
 </script>
 
 <template>
-  <Header />
-  <Main />
+  <div class="min-h-screen bg-[#0F3040]"><Header /> <Main /></div>
 </template>

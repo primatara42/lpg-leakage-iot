@@ -1,7 +1,7 @@
 <template>
-  <section class="bg-[#F5F5F5] px-2 py-5 text-xs text-[#4C4C4C] font-medium">
+  <section class="bg-[#0F3040] px-2 py-5 text-xs text-white font-medium">
     <div
-      class="flex items-center px-1 py-2 mb-3 gap-2 rounded-xl border-2"
+      class="flex items-center px-1 py-2 mb-3 gap-2 rounded-xl"
       :class="systemStatusStyle.card"
     >
       <div>
@@ -23,7 +23,7 @@
           {{ systemStatus }}
         </h2>
 
-        <h2>
+        <h2 :class="systemStatusStyle.text">
           {{
             systemStatusStyle.icon === "safe"
               ? "Tidak Ada Indikasi Bahaya"
@@ -36,7 +36,7 @@
     <div class="grid grid-cols-2 gap-3">
       <!-- Card Kadar Gas LPG -->
       <div
-        class="flex min-w-0 flex-col justify-between gap-3 rounded-xl border-2 border-[#FF5A00] bg-[#F5CDBD] p-3"
+        class="flex min-w-0 flex-col justify-between gap-3 rounded-xl bg-[#464858] p-3"
       >
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
@@ -67,7 +67,7 @@
 
       <!-- Card Status Asap -->
       <div
-        class="flex min-w-0 flex-col justify-center gap-3 rounded-xl border-2 p-3 border-[#DDDDDD] bg-[#EEEEEE]"
+        class="flex min-w-0 flex-col justify-center gap-3 rounded-xl p-3 bg-[#464858]"
       >
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
@@ -99,9 +99,7 @@
       </div>
 
       <!-- Card Suhu -->
-      <div
-        class="flex min-w-0 flex-col gap-3 rounded-xl border-2 border-[#E11A45] bg-[#FFB6C1] p-3"
-      >
+      <div class="flex min-w-0 flex-col gap-3 rounded-xl bg-[#464858] p-3">
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
           <img class="h-6 w-6 shrink-0" :src="tempIcon" alt="Ikon suhu" />
@@ -117,9 +115,7 @@
       </div>
 
       <!-- Card Kelembapan -->
-      <div
-        class="flex min-w-0 flex-col gap-3 rounded-xl border-2 border-[#99C2FF] bg-[#CFEBFF] p-3"
-      >
+      <div class="flex min-w-0 flex-col gap-3 rounded-xl bg-[#464858] p-3">
         <!-- Header -->
         <div class="flex min-w-0 items-center gap-2">
           <img class="h-6 w-6 shrink-0" :src="humidityIcon" alt="Ikon suhu" />
@@ -133,7 +129,6 @@
         </p>
       </div>
     </div>
-    <SensorHistoryChart class="mt-5" />
   </section>
 </template>
 <script setup>
@@ -257,7 +252,7 @@ const systemStatus = computed(() => {
 const systemStatusStyle = computed(() => {
   if (!hasData.value || sensorData.value.gasPpm == null) {
     return {
-      card: "border-gray-300 bg-gray-100",
+      card: " bg-gray-100",
       text: "text-gray-600",
       icon: "safe",
     };
@@ -268,12 +263,12 @@ const systemStatusStyle = computed(() => {
 
   return isDanger
     ? {
-        card: "border-[#E11A45] bg-[#FFB6C1]",
+        card: "bg-[#FFB6C1]",
         text: "text-[#E11A45]",
         icon: "warning",
       }
     : {
-        card: "border-[#00C68D] bg-[#E8F5BD]",
+        card: "bg-[#464858]",
         text: "text-[#00C68D]",
         icon: "safe",
       };
